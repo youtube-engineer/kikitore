@@ -93,17 +93,17 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 /* 再生画面 */
 .player{position:fixed;inset:0;z-index:8;background:var(--bg);transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);overflow-y:auto;visibility:hidden}
 .player.open{transform:none;visibility:visible}
-.player .wrap{padding-bottom:calc(24px + env(safe-area-inset-bottom));min-height:100%;display:flex;flex-direction:column}
+.player .wrap{padding-bottom:calc(8px + env(safe-area-inset-bottom));height:100%;min-height:540px;display:flex;flex-direction:column}
 .player .nav{border-bottom:none}
-.pc{display:flex;justify-content:center;padding:14px 0 18px}
-.pc .cover{width:min(56vw,230px);border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.pc{flex:1 1 0;min-height:0;display:flex;justify-content:center;align-items:center;padding:6px 0 10px}
+.pc .cover{height:100%;max-height:260px;width:auto;max-width:56vw;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .pc .cover .ct{font-size:clamp(14px,4.2vw,18px);padding:14px 14px 0}
 .pc .cover .cb{font-size:12px;padding:0 14px}
 .ptitle{display:grid;grid-template-columns:1fr 44px;align-items:center;gap:8px}
 .ptitle h2{font-size:19px;line-height:1.4;margin:0;word-break:break-all}
 .ptitle .no{font-size:13px;color:var(--sub);margin-top:2px}
 .ptitle .ib{width:44px;height:44px}
-.seekwrap{position:relative;height:30px;display:flex;align-items:center;margin-top:12px}
+.seekwrap{position:relative;height:40px;display:flex;align-items:center;margin-top:4px;touch-action:none;cursor:pointer}
 .seekbg{position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line);overflow:hidden;pointer-events:none}
 .seekfill{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
 .repzone{position:absolute;top:0;bottom:0;background:var(--rep);display:none}
@@ -116,8 +116,8 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .seek::-moz-range-track{background:transparent}
 .seek::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:8px;border-radius:50%;background:var(--ink)}
 .seek::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ink);border:none}
-.times{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-4px}
-.ctrls{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;margin:14px 0 6px}
+.times{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-8px}
+.ctrls{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;margin:6px 0 2px}
 .cb2{width:56px;height:56px;display:grid;place-items:center;position:relative}
 .cb2 svg.i{width:34px;height:34px}
 .cb2 .num{position:absolute;font-size:11px;font-weight:700;top:50%;left:50%;transform:translate(-50%,-38%)}
@@ -125,19 +125,25 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .cb2:disabled{opacity:.3}
 .playbtn{width:72px;height:72px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
 .playbtn svg.i{width:34px;height:34px}
-.status{min-height:22px;text-align:center;font-size:13px;color:var(--sub);margin:4px 0 6px}
+.status{min-height:20px;text-align:center;font-size:13px;color:var(--sub);margin:2px 0 2px}
 .status.rep{color:var(--rep);font-weight:700}
 .status.gap{color:var(--acc);font-weight:700}
-.tools{display:grid;grid-template-columns:repeat(5,1fr);margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
-.tool{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 0 6px;font-size:11px;color:var(--sub)}
+.tools{display:grid;grid-template-columns:repeat(5,1fr);flex:0 0 auto;padding-top:4px;border-top:1px solid var(--line)}
+.tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 4px;font-size:11px;color:var(--sub)}
 .tool b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;height:22px;display:flex;align-items:center}
 .tool.on b{color:var(--acc)}
 .tool.rep b{color:var(--rep)}
 
+/* バーは指でどこを触っても動かせる */
+.seekwrap .seek,.spwrap .seek{pointer-events:none;height:40px}
+.seekwrap .seek::-webkit-slider-runnable-track,.spwrap .seek::-webkit-slider-runnable-track{height:40px}
+.seekwrap .seek::-webkit-slider-thumb,.spwrap .seek::-webkit-slider-thumb{width:18px;height:18px;margin-top:11px;transition:transform .1s}
+.seekwrap.drag .seek::-webkit-slider-thumb,.spwrap.drag .seek::-webkit-slider-thumb{transform:scale(1.35)}
+.seekwrap .seekbg{height:5px}
 /* 速さバー */
 .speedrow{display:grid;grid-template-columns:34px 1fr 34px 56px;gap:8px;align-items:center;margin:2px 0 4px}
 .speedrow .pm{height:34px;border-radius:8px;background:var(--bg2);font-size:18px}
-.spwrap{position:relative;height:30px;display:flex;align-items:center}
+.spwrap{position:relative;height:40px;display:flex;align-items:center;touch-action:none;cursor:pointer}
 .spbg{position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line);overflow:hidden;pointer-events:none}
 .spfill{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
 .spmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--sub);opacity:.5;pointer-events:none}
@@ -145,12 +151,12 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .spwrap .seek::-moz-range-thumb{background:var(--acc)}
 .spval{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--acc);text-align:right}
 /* 英文(文字起こし) */
-.scriptv{margin:4px 0 8px}
+.scriptv{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:2px 0 6px}
 .shead2{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--sub);margin-bottom:4px}
 .shead2 .acts{display:flex;gap:14px}
 .shead2 button{color:var(--acc);font-size:13.5px}
 .shead2 button.on{font-weight:700}
-.script{height:min(40vh,340px);overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 0}
+.script{flex:1 1 0;min-height:80px;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 0}
 .sl{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:10px;font-size:17px;line-height:1.6;color:var(--sub)}
 .sl.now{color:var(--ink);background:var(--acc-soft);font-weight:600}
 .sl .ts{display:block;font-size:11px;color:var(--sub);font-weight:400;font-variant-numeric:tabular-nums}
@@ -276,11 +282,11 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
   </div>
   <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
   <div class="ctrls">
-    <button class="cb2" id="again" aria-label="もう一度"><svg class="i" viewBox="0 0 24 24"><path d="M12 4V1.5L7.5 5 12 8.5V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg><span class="num" id="againNum">3</span></button>
     <button class="cb2 track" id="prevT" aria-label="前のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM19 6.2v11.6a1 1 0 0 1-1.5.86L9.6 13.9a1.1 1.1 0 0 1 0-1.8l7.9-4.76A1 1 0 0 1 19 6.2z"/></svg></button>
+    <button class="cb2" id="again" aria-label="もう一度"><svg class="i" viewBox="0 0 24 24"><path d="M12 4V1.5L7.5 5 12 8.5V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg><span class="num" id="againNum">3</span></button>
     <button class="playbtn" id="play" aria-label="再生"></button>
-    <button class="cb2 track" id="nextT" aria-label="次のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM5 6.2v11.6a1 1 0 0 0 1.5.86l7.9-4.76a1.1 1.1 0 0 0 0-1.8L6.5 5.34A1 1 0 0 0 5 6.2z"/></svg></button>
     <button class="cb2" data-skip="5" aria-label="5秒進む"><svg class="i" viewBox="0 0 24 24"><path d="M12 4V1.5L16.5 5 12 8.5V6a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/></svg><span class="num">5</span></button>
+    <button class="cb2 track" id="nextT" aria-label="次のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM5 6.2v11.6a1 1 0 0 0 1.5.86l7.9-4.76a1.1 1.1 0 0 0 0-1.8L6.5 5.34A1 1 0 0 0 5 6.2z"/></svg></button>
   </div>
   <div class="speedrow">
     <button class="pm" id="spMinus" aria-label="少し遅く">−</button>
@@ -313,7 +319,8 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
   <div class="grab"></div><h3>再生の設定</h3>
   <div class="setrow"><div class="lab">「もう一度」で戻る秒数</div><div class="seg" id="segBack"></div></div>
   <div class="setrow"><div class="lab">トラックの間をあける<small>次のトラックが始まるまで待ちます。単語の暗記や音読に</small></div><div class="seg" id="segTGap"></div></div>
-  <div class="setrow"><div class="lab">区間リピートの間をあける<small>くり返す前に止まります。シャドーイングに</small></div><div class="seg" id="segGap"></div></div>
+  <div class="setrow"><div class="lab">英文の1文ごとに止める<small>英文を作ったトラックで、文の終わりごとに止まります。リピーティング・シャドーイングの練習に</small></div><div class="seg" id="segSGap"></div></div>
+  <div class="setrow"><div class="lab">区間リピートの間をあける<small>「区間」や「今の文をくり返す」のとき、くり返す前に止まります</small></div><div class="seg" id="segGap"></div></div>
   <div class="setrow kbonly"><div class="lab">キーボード</div><div class="keys">
     <div><kbd>Space</kbd> 再生と一時停止、<kbd>R</kbd> もう一度</div>
     <div><kbd>←</kbd><kbd>→</kbd> 5秒、<kbd>J</kbd><kbd>L</kbd> 10秒</div>
@@ -518,7 +525,7 @@ $('addToBook').onclick=()=>pick('files',openBook);
 function cancelTGap(){if(tGapTimer)clearInterval(tGapTimer);tGapTimer=null;pendingGo=null;setStatus()}
 function bookOf(t){return books.find(b=>b.id===t.bookId)}
 function playFrom(b,list,i,autoplay){queue=list.slice();qi=i;loadTrack(queue[qi],autoplay)}
-function loadTrack(t,autoplay){if(!t)return;savePos();cancelTGap();clearRep();skA=null;cur=t;segNow=-1;
+function loadTrack(t,autoplay){if(!t)return;savePos();cancelTGap();clearRep();skA=null;cur=t;segNow=-1;sentK=-1;if(sentTimer){clearTimeout(sentTimer);sentTimer=null}
   if(urlNow)URL.revokeObjectURL(urlNow);urlNow=URL.createObjectURL(t.blob);au.src=urlNow;
   store.set('lp_last',t.id);store.set('lp_lastIn_'+t.bookId,t.id);store.set('lp_queue',{book:t.bookId,ids:queue.map(x=>x.id)});
   au.onloadedmetadata=()=>{const p=store.get('lp_pos_'+t.id,0);if(p>3&&p<au.duration-3){au.currentTime=p;toast('前回の続き('+fmt(p)+')から再生します','最初から',()=>{au.currentTime=0;upd()},5000)}applySpeed();paintSkips();checkSkip();upd();renderScript();if(autoplay)tryPlay()};
@@ -533,7 +540,7 @@ function updNow(){if(!cur)return;const b=bookOf(cur)||{name:'',tracks:[]};const 
   $('sFav').innerHTML=cur.fav?HEART_ON:HEART_OFF;$('sFav').classList.toggle('fav',!!cur.fav);
   $('prevT').disabled=false;$('nextT').disabled=qi>=queue.length-1&&mode()!=='all'}
 function tryPlay(){applySpeed();const p=au.play();if(p&&p.catch)p.catch(()=>{})}
-function toggle(){if(!cur)return;clearTimeout(gapTimer);if(tGapTimer){const g=pendingGo;cancelTGap();g&&g();return}au.paused?tryPlay():au.pause()}
+function toggle(){if(!cur)return;if(sentTimer){clearTimeout(sentTimer);sentTimer=null;setStatus();tryPlay();return}if(gapTimer){clearTimeout(gapTimer);gapTimer=null;setStatus();tryPlay();return}if(tGapTimer){const g=pendingGo;cancelTGap();g&&g();return}au.paused?tryPlay():au.pause()}
 function setPlayIcons(){const p=!au.paused;$('play').innerHTML=p?ICON_PAUSE:ICON_PLAY;$('miniPlay').innerHTML=p?ICON_PAUSE:ICON_PLAY;
   $('play').setAttribute('aria-label',p?'一時停止':'再生');$('miniPlay').setAttribute('aria-label',p?'一時停止':'再生');
   if('mediaSession' in navigator)try{navigator.mediaSession.playbackState=p?'playing':'paused'}catch(e){}}
@@ -543,7 +550,7 @@ $('miniBack').onclick=e=>{e.stopPropagation();again()};
 function skip(s){if(!cur||!isFinite(au.duration))return;au.currentTime=Math.min(Math.max(0,au.currentTime+s),au.duration);upd()}
 document.querySelectorAll('[data-skip]').forEach(b=>b.onclick=()=>skip(+b.dataset.skip));
 $('tBack').onclick=()=>skip(-10);
-function again(){if(!cur)return;skip(-backSec());clearTimeout(gapTimer);tryPlay()}
+function again(){if(!cur)return;clearSent();skip(-backSec());clearTimeout(gapTimer);tryPlay()}
 $('again').onclick=again;
 function nextTrack(auto){if(!queue.length)return;if(qi<queue.length-1){qi++;loadTrack(queue[qi],auto)}else if(mode()==='all'){qi=0;loadTrack(queue[0],auto)}}
 function prevTrack(){if(au.currentTime>3||qi<=0){au.currentTime=0;upd();return}qi--;loadTrack(queue[qi],!au.paused)}
@@ -566,10 +573,18 @@ function setStatus(msg,kind){const s=$('gapnote');if(msg){s.textContent=msg;s.cl
 /* シーク */
 $('seek').oninput=e=>{seeking=true;if(au.duration)$('cur').textContent=fmt(e.target.value/1000*au.duration);$('fill').style.width=e.target.value/10+'%'};
 $('seek').onchange=e=>{seeking=false;if(au.duration)au.currentTime=e.target.value/1000*au.duration;upd()};
+function bindBar(wrap,onMove,onEnd){let drag=false;
+  const val=e=>{const r=wrap.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))};
+  wrap.addEventListener('pointerdown',e=>{if(e.button>0)return;drag=true;try{wrap.setPointerCapture(e.pointerId)}catch(x){}wrap.classList.add('drag');onMove(val(e));e.preventDefault()});
+  wrap.addEventListener('pointermove',e=>{if(drag){onMove(val(e));e.preventDefault()}});
+  const end=e=>{if(!drag)return;drag=false;wrap.classList.remove('drag');onEnd(e.type==='pointercancel'?null:val(e))};
+  wrap.addEventListener('pointerup',end);wrap.addEventListener('pointercancel',end)}
+bindBar($('seek').parentElement,r=>{seeking=true;$('seek').value=r*1000;$('fill').style.width=r*100+'%';if(au.duration)$('cur').textContent=fmt(r*au.duration)},
+  r=>{seeking=false;if(r!=null&&au.duration){au.currentTime=Math.min(r*au.duration,au.duration-0.05);clearSent()}upd()});
 function upd(){const d=au.duration||0,t=au.currentTime||0,r=d?t/d:0;if(!seeking){$('seek').value=r*1000;$('fill').style.width=r*100+'%';$('cur').textContent=fmt(t)}
   $('dur').textContent=fmt(d);$('miniProg').style.width=r*100+'%';paintRep()}
 au.ontimeupdate=()=>{checkSkip();upd();syncScript();if(cur&&au.duration&&au.currentTime/au.duration>0.9)markPlayed(cur);
-  if(A!=null&&B!=null&&au.currentTime>=B&&!au.paused){const g=gapSec();au.currentTime=A;if(g){au.pause();gapTimer=setTimeout(tryPlay,g*1000)}}};
+  if(A!=null&&B!=null&&au.currentTime>=B&&!au.paused){const g=gapSec();au.currentTime=A;if(g){au.pause();setStatus('くり返しまで '+g+' 秒','gap');gapTimer=setTimeout(()=>{gapTimer=null;setStatus();tryPlay()},g*1000)}}};
 let lastSave=0;au.addEventListener('timeupdate',()=>{const n=Date.now();if(n-lastSave>4000){lastSave=n;savePos()}});
 function savePos(){if(cur&&isFinite(au.currentTime)&&au.currentTime>0)store.set('lp_pos_'+cur.id,au.currentTime)}
 window.addEventListener('pagehide',savePos);document.addEventListener('visibilitychange',savePos);
@@ -594,7 +609,8 @@ function setSpeed(v){speed=Math.round(Math.min(3,Math.max(0.3,v))*100)/100;apply
   document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('on',+b.dataset.p===speed));store.set('lp_speed',speed)}
 $('speed').oninput=e=>setSpeed(+e.target.value);
 $('sdown').onclick=()=>setSpeed(speed-0.05);$('sup').onclick=()=>setSpeed(speed+0.05);
-$('speed2').oninput=e=>setSpeed(+e.target.value);$('spMinus').onclick=()=>setSpeed(speed-0.05);$('spPlus').onclick=()=>setSpeed(speed+0.05);
+$('speed2').oninput=e=>setSpeed(+e.target.value);
+bindBar($('speed2').parentElement,r=>setSpeed(Math.round((0.5+r*1.5)*20)/20),r=>{});$('spMinus').onclick=()=>setSpeed(speed-0.05);$('spPlus').onclick=()=>setSpeed(speed+0.05);
 $('spMark').style.left='calc('+((1-.5)/1.5*100)+'% - 1px)';
 
 /* リピート(ツールバーで切り替え) */
@@ -612,6 +628,7 @@ function seg(id,opts,key,def,onset){const el=$(id);let v=store.get(key,def);
 const backSec=seg('segBack',[[2,'2秒'],[3,'3秒'],[5,'5秒'],[8,'8秒']],'lp_back',3,v=>$('againNum').textContent=v);
 const tGap=seg('segTGap',[[0,'なし'],[2,'2秒'],[3,'3秒'],[5,'5秒'],[10,'10秒']],'lp_tgap',0);
 const gapSec=seg('segGap',[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],[5,'5秒']],'lp_gap',0);
+const sentGap=seg('segSGap',[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],['x','長さに合わせる']],'lp_sgap',0);
 au.volume=1;
 
 /* 区間リピート:1回目で開始、2回目で終わり、3回目で解除 */
@@ -639,7 +656,20 @@ function skipStep(){if(!cur)return;const t=au.currentTime;
 function removeSkip(i){if(!cur||!cur.skips)return;cur.skips.splice(i,1);DB.putTrack(cur);paintSkips();toast('飛ばす設定を解除しました')}
 function checkSkip(){if(!cur||skA!=null||!au.duration)return;const t=au.currentTime;
   for(const[a,b]of skips()){if(t>=a&&t<b-0.05){au.currentTime=Math.min(b,au.duration);return}}}
-setInterval(()=>{if(!au.paused)checkSkip()},80);
+setInterval(()=>{if(!au.paused){checkSkip();checkSentence()}},80);
+/* 英文の文の終わりで止める */
+let sentK=-1,sentTimer=null;
+function clearSent(){if(sentTimer){clearTimeout(sentTimer);sentTimer=null;setStatus()}sentK=-1}
+function checkSentence(){const g=sentGap();const tr=cur&&cur.tr;if(!g||!tr||!tr.length||A!=null||seeking||sentTimer)return;
+  const t=au.currentTime;
+  if(sentK<0||sentK>=tr.length||t<tr[sentK].s-0.5||t>tr[sentK].e+1.5){sentK=segAt(t);return}
+  const sg=tr[sentK];if(t<sg.e-0.05)return;
+  if(sentK>=tr.length-1){sentK=-1;return}
+  const wait=g==='x'?Math.min(8,Math.max(1,(sg.e-sg.s)/speed)):+g;
+  au.pause();sentK++;au.currentTime=tr[sentK].s;
+  let left=Math.ceil(wait);setStatus('次の文まで '+left+' 秒(再生ボタンですぐ再開)','gap');
+  const tick=()=>{left--;if(left<=0){sentTimer=null;setStatus();tryPlay()}else{setStatus('次の文まで '+left+' 秒(再生ボタンですぐ再開)','gap');sentTimer=setTimeout(tick,1000)}};
+  sentTimer=setTimeout(tick,wait*1000-(left-1)*1000)}
 $('tSkip').onclick=skipStep;
 
 /* ---------- 英文(端末内の文字起こし) ---------- */
@@ -662,7 +692,7 @@ function renderScript(){paintScriptMode();if(!cur)return;const box=$('script');s
   $('scriptInfo').textContent='英文 '+tr.length+'文';
   box.innerHTML='';tr.forEach((g,i)=>{const b=document.createElement('button');b.className='sl';b.dataset.i=i;
     b.innerHTML='<span class="ts">'+fmt(g.s)+'</span>';b.appendChild(document.createTextNode(g.t));
-    b.onclick=()=>{if(A!=null&&B!=null){A=g.s;B=g.e;showRep()}au.currentTime=g.s;upd();tryPlay();syncScript(true)};box.appendChild(b)});
+    b.onclick=()=>{clearSent();if(A!=null&&B!=null){A=g.s;B=g.e;showRep()}au.currentTime=g.s;upd();tryPlay();syncScript(true)};box.appendChild(b)});
   syncScript(true)}
 function segAt(t){const tr=cur&&cur.tr;if(!tr)return-1;let k=-1;for(let i=0;i<tr.length;i++){if(tr[i].s<=t+0.05)k=i;else break}return k}
 function syncScript(force){if(!showScript||!cur||!cur.tr||!cur.tr.length)return;const k=segAt(au.currentTime||0);if(k===segNow&&!force)return;

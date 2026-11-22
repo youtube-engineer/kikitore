@@ -644,7 +644,7 @@ $('tSkip').onclick=skipStep;
 
 /* ---------- 英文(端末内の文字起こし) ---------- */
 const TF_URL='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
-const MODELS=[['Xenova/whisper-tiny.en','ふつう','約40MB・速い'],['Xenova/whisper-base.en','高精度','約80MB・少し遅い']];
+const MODELS=[['Xenova/whisper-tiny.en','ふつう','約40MB・速い'],['Xenova/whisper-base.en','高精度','約80MB・パソコン向け']];
 let segNow=-1,showScript=store.get('lp_script',false),trJob=null,userScrollAt=0;
 const trModel=()=>{const m=store.get('lp_trmodel',MODELS[0][0]);return MODELS.some(x=>x[0]===m)?m:MODELS[0][0]};
 function paintScriptMode(){$('scriptView').classList.toggle('hide',!showScript);$('sCover').classList.toggle('hide',showScript);$('tScript').classList.toggle('on',showScript)}
@@ -676,52 +676,69 @@ $('scriptMenu').onclick=()=>{const t=cur;dialog('<h3>英文の設定</h3><p>う�
     box.querySelector('#trRedo').onclick=()=>{closeDialog();store.set('lp_trmodel',MODELS[1][0]);startTranscribe(t)};
     box.querySelector('#trDel').onclick=()=>{t.tr=null;DB.putTrack(t);closeDialog();renderScript();toast('英文を削除しました')}})};
 
-/* 音声を16kHz・モノラルに変換 */
-async function decode16k(blob){const ab=await blob.arrayBuffer();const AC=window.AudioContext||window.webkitAudioContext;const ac=new AC();
-  const buf=await new Promise((res,rej)=>ac.decodeAudioData(ab,res,rej));try{ac.close()}catch(e){}
-  const n=buf.numberOfChannels,len=buf.length,src=new Float32Array(len);
-  for(let c=0;c<n;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)src[i]+=d[i]/n}
-  const ratio=buf.sampleRate/16000,outLen=Math.floor(len/ratio),out=new Float32Array(outLen);
-  for(let i=0;i<outLen;i++){const x=i*ratio,j=Math.floor(x),f=x-j;out[i]=src[j]*(1-f)+(src[j+1]||0)*f}
+/* 音声を16kHz・モノラルで読み込む(メモリ節約のため、最初から低いサンプリングで展開) */
+async function decode16k(blob){const AC=window.AudioContext||window.webkitAudioContext;let ac;
+  try{ac=new AC({sampleRate:16000})}catch(e){ac=new AC()}
+  let buf;try{buf=await new Promise(async(res,rej)=>{const ab=await blob.arrayBuffer();ac.decodeAudioData(ab,res,rej)})}finally{try{ac.close()}catch(e){}}
+  const n=buf.numberOfChannels,len=buf.length,rate=buf.sampleRate;
+  let mono;if(n===1)mono=buf.getChannelData(0);else{mono=new Float32Array(len);for(let c=0;c<n;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)mono[i]+=d[i]/n}}
+  if(rate===16000)return n===1?mono.slice():mono;
+  const ratio=rate/16000,outLen=Math.floor(len/ratio),out=new Float32Array(outLen);
+  for(let i=0;i<outLen;i++){const x=i*ratio,j=Math.floor(x),f=x-j;out[i]=mono[j]*(1-f)+(mono[j+1]||0)*f}
   return out}
+/* 約30秒ごとに、いちばん静かなところで区切る */
+function cutPoints(a){const SR=16000,W=28*SR,MIN=18*SR,step=SR/10;const cuts=[0];let pos=0;
+  while(a.length-pos>W+2*SR){let best=pos+W,bestE=Infinity;
+    for(let s0=pos+MIN;s0+step<=pos+W;s0+=step/2){let e=0;for(let i=s0;i<s0+step;i+=4)e+=a[i]*a[i];if(e<bestE){bestE=e;best=Math.floor(s0+step/2)}}
+    cuts.push(best);pos=best}
+  cuts.push(a.length);return cuts}
 
 /* AIは別スレッド(Worker)で動かし、画面が固まらないようにする */
 let trWorker=null;
 function getWorker(){if(trWorker)return trWorker;
-  const code="let p=null,m=null,tf=null;self.onmessage=async e=>{const d=e.data;try{if(!tf){tf=await import('"+TF_URL+"');tf.env.allowLocalModels=false;}"+
+  const code="let p=null,m=null,tf=null;self.onmessage=async e=>{const d=e.data;try{if(!tf){tf=await import('"+TF_URL+"');tf.env.allowLocalModels=false;try{tf.env.backends.onnx.wasm.numThreads=1}catch(x){}}"+
     "if(!p||m!==d.model){p=await tf.pipeline('automatic-speech-recognition',d.model,{dtype:'q8',device:'wasm',progress_callback:x=>self.postMessage({type:'load',x})});m=d.model}"+
-    "self.postMessage({type:'start'});const out=await p(d.audio,{chunk_length_s:30,stride_length_s:5,return_timestamps:true});self.postMessage({type:'done',out})}"+
+    "self.postMessage({type:'start'});const out=await p(d.audio,{return_timestamps:true});self.postMessage({type:'done',out})}"+
     "catch(err){self.postMessage({type:'error',message:String((err&&err.message)||err)})}};";
   trWorker=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})),{type:'module'});return trWorker}
-function toSegs(out,dur){const ch=(out&&out.chunks&&out.chunks.length)?out.chunks:[{timestamp:[0,dur],text:(out&&out.text)||''}];const segs=[];
-  ch.forEach((c,i)=>{const t=(c.text||'').trim();if(!t)return;const s=(c.timestamp&&c.timestamp[0])||0;
-    let e=c.timestamp&&c.timestamp[1];if(e==null)e=(ch[i+1]&&ch[i+1].timestamp&&ch[i+1].timestamp[0])||dur;segs.push({s,e:Math.max(e,s+0.3),t})});return segs}
+function pieceSegs(out,offset,dur){const ch=(out&&out.chunks&&out.chunks.length)?out.chunks:[{timestamp:[0,dur],text:(out&&out.text)||''}];const segs=[];
+  ch.forEach((c,i)=>{const t=(c.text||'').trim();if(!t||/^\[.*\]$|^\(.*\)$/.test(t))return;const s=(c.timestamp&&c.timestamp[0])||0;
+    let e=c.timestamp&&c.timestamp[1];if(e==null)e=(ch[i+1]&&ch[i+1].timestamp&&ch[i+1].timestamp[0])||dur;e=Math.min(e,dur);
+    segs.push({s:offset+s,e:offset+Math.max(e,s+0.3),t})});return segs}
 async function startTranscribe(t){if(!t||trJob)return;
-  const files={};let phase='prep',started=0,timer=null;
+  const files={};let phase='prep',started=0,timer=null,done=0,total=1,cancelled=false;
   trJob={id:t.id,html:()=>{let msg,pct=null;
     if(phase==='prep')msg='音声を読み込んでいます';
     else if(phase==='load'){const v=Object.values(files);const L=v.reduce((a,x)=>a+(x.loaded||0),0),T=v.reduce((a,x)=>a+(x.total||0),0);pct=T?L/T:0;msg='AIを準備しています(初回のみ) '+Math.round(pct*100)+'%'}
-    else{const sec=Math.round((Date.now()-started)/1000);msg='文字起こし中… '+sec+'秒経過'}
-    return '<div class="trbox"><h3>'+msg+'</h3><div class="trprog'+(pct==null?' busy':'')+'"><i style="width:'+Math.round((pct||0)*100)+'%"></i></div><p>画面を開いたまま、ほかのアプリに切り替えずにお待ちください。1分の音声で数十秒ほどかかります。</p></div>'}};
-  const refresh=()=>{if(cur&&cur.id===t.id&&showScript){$('script').innerHTML=trJob.html();$('scriptInfo').textContent='文字起こし中'}};
+    else{pct=done/total;msg='文字起こし中 '+Math.round(pct*100)+'%'}
+    return '<div class="trbox"><h3>'+msg+'</h3><div class="trprog'+(pct==null?' busy':'')+'"><i style="width:'+Math.round((pct||0)*100)+'%"></i></div><p>画面を開いたまま、ほかのアプリに切り替えずにお待ちください。</p><button class="btn sub" id="trCancel" style="max-width:160px">中止</button></div>'}};
+  const refresh=()=>{if(cur&&cur.id===t.id&&showScript){$('script').innerHTML=trJob.html();$('scriptInfo').textContent='文字起こし中';const c=$('trCancel');if(c)c.onclick=cancel}};
+  const stopWorker=()=>{try{trWorker&&trWorker.terminate()}catch(e){}trWorker=null};
+  const cancel=()=>{cancelled=true;clearInterval(timer);stopWorker();trJob=null;renderScript();toast('文字起こしを中止しました')};
   if(cur&&cur.id===t.id&&!showScript){showScript=true;store.set('lp_script',true);paintScriptMode()}
   refresh();
-  const fail=msg=>{clearInterval(timer);trJob=null;renderScript();
+  const fail=msg=>{if(cancelled)return;clearInterval(timer);stopWorker();trJob=null;renderScript();
     const blocked=/import|fetch|Failed to|NetworkError|Content Security|dynamically imported/i.test(msg||'');
-    dialog('<h3>文字起こしできませんでした</h3><p>'+(blocked?(/github\.io$/.test(location.hostname)?'AIを読み込めませんでした。電波のよいところで、もう一度試してください。':'このページではAIを読み込めません。文字起こしは、GitHub Pagesで公開したページで使えます。'):'もう一度試すか、「高精度」に切り替えて試してください。<br><small>'+esc(msg||'')+'</small>')+'</p><button class="wide" id="dOk">閉じる</button>',box=>box.querySelector('#dOk').onclick=closeDialog)};
+    dialog('<h3>文字起こしできませんでした</h3><p>'+(blocked?(/github\.io$/.test(location.hostname)?'AIを読み込めませんでした。電波のよいところで、もう一度試してください。':'このページではAIを読み込めません。文字起こしは、GitHub Pagesで公開したページで使えます。'):'もう一度試してください。<br><small>'+esc(msg||'')+'</small>')+'</p><button class="wide" id="dOk">閉じる</button>',box=>box.querySelector('#dOk').onclick=closeDialog)};
   let audio;try{audio=await decode16k(t.blob)}catch(e){fail('この音声ファイルを読み込めませんでした');return}
-  const dur=audio.length/16000;let w;try{w=getWorker()}catch(e){fail('import '+e.message);return}
-  const guard=setTimeout(()=>{if(phase==='prep'){w.terminate();trWorker=null;fail('import timeout')}},45000);
+  if(cancelled)return;
+  const cuts=cutPoints(audio);total=cuts.length-1;const segs=[];
+  let w;try{w=getWorker()}catch(e){fail('import '+e.message);return}
   phase='load';refresh();timer=setInterval(refresh,1000);
-  w.onerror=e=>{clearTimeout(guard);try{w.terminate()}catch(x){}trWorker=null;fail('import '+(e.message||''))};
-  w.onmessage=async e=>{const d=e.data;
-    if(d.type==='load'){clearTimeout(guard);const x=d.x||{};if(x.file&&(x.status==='progress'||x.status==='done'||x.status==='initiate')){const f=files[x.file]||(files[x.file]={});if(x.total)f.total=x.total;if(x.loaded!=null)f.loaded=x.loaded;if(x.status==='done'&&f.total)f.loaded=f.total}}
-    else if(d.type==='start'){clearTimeout(guard);phase='run';started=Date.now();refresh()}
-    else if(d.type==='done'){clearInterval(timer);const segs=toSegs(d.out,dur);trJob=null;
-      if(!segs.length){fail('音声から英語を聞き取れませんでした');return}
-      t.tr=segs;await DB.putTrack(t);if(cur&&cur.id===t.id)renderScript();toast('「'+t.name+'」の英文ができました')}
-    else if(d.type==='error'){clearTimeout(guard);fail(d.message)}};
-  w.postMessage({model:trModel(),audio},[audio.buffer])}
+  const guard=setTimeout(()=>{if(phase==='load'&&!Object.keys(files).length)fail('import timeout')},45000);
+  const runPiece=i=>new Promise((res,rej)=>{w.onerror=e=>rej(new Error('import '+(e.message||'')));
+    w.onmessage=e=>{const d=e.data;
+      if(d.type==='load'){clearTimeout(guard);const x=d.x||{};if(x.file&&(x.status==='progress'||x.status==='done'||x.status==='initiate')){const f=files[x.file]||(files[x.file]={});if(x.total)f.total=x.total;if(x.loaded!=null)f.loaded=x.loaded;if(x.status==='done'&&f.total)f.loaded=f.total}}
+      else if(d.type==='start'){clearTimeout(guard);if(phase!=='run'){phase='run';started=Date.now();refresh()}}
+      else if(d.type==='done')res(d.out);
+      else if(d.type==='error')rej(new Error(d.message))};
+    const piece=audio.slice(cuts[i],cuts[i+1]);w.postMessage({model:trModel(),audio:piece},[piece.buffer])});
+  try{for(let i=0;i<total;i++){if(cancelled)return;const out=await runPiece(i);
+      segs.push(...pieceSegs(out,cuts[i]/16000,(cuts[i+1]-cuts[i])/16000));done=i+1;refresh()}}
+  catch(e){clearTimeout(guard);fail(e.message);return}
+  if(cancelled)return;clearInterval(timer);audio=null;trJob=null;
+  if(!segs.length){fail('音声から英語を聞き取れませんでした');return}
+  t.tr=segs;await DB.putTrack(t);if(cur&&cur.id===t.id)renderScript();toast('「'+t.name+'」の英文ができました')}
 
 /* ロック画面・イヤホン */
 function setMedia(){if(!('mediaSession' in navigator)||!cur)return;const b=bookOf(cur);

@@ -6,8 +6,8 @@
 <title>リスニングプレーヤー</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <style>
-:root{--bg:#fff;--bg2:#f3f4f2;--ink:#1c1c1e;--sub:#8a8a8e;--line:#e8e8e6;--acc:#0f9a6a;--acc-soft:#e7f5ef;--fav:#e5484d;--rep:#e8930c}
-@media (prefers-color-scheme:dark){:root{--bg:#121212;--bg2:#1e1e1e;--ink:#f2f2f2;--sub:#8e8e93;--line:#2c2c2e;--acc:#2bbf86;--acc-soft:#1b2f27;--fav:#ff6369;--rep:#f5a524}}
+:root{--bg:#fff;--bg2:#f3f4f2;--ink:#1c1c1e;--sub:#8a8a8e;--line:#e8e8e6;--acc:#1c1c1e;--acc-soft:#efefec;--fav:#e5484d;--rep:#e8930c}
+@media (prefers-color-scheme:dark){:root{--bg:#121212;--bg2:#1e1e1e;--ink:#f2f2f2;--sub:#8e8e93;--line:#2c2c2e;--acc:#f2f2f2;--acc-soft:#2a2a2c;--fav:#ff6369;--rep:#f5a524}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;overscroll-behavior-y:none}
@@ -47,7 +47,7 @@ svg.i{width:24px;height:24px;fill:currentColor;display:block}
 .empty-lib{padding:56px 8px 0;text-align:center}
 .empty-lib h2{font-size:20px;margin:0 0 8px}
 .empty-lib p{color:var(--sub);font-size:14px;margin:0 auto 24px;max-width:300px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:16px;background:var(--acc);color:#fff}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:12px;font-weight:700;font-size:16px;background:var(--acc);color:var(--bg)}
 .btn.sub{background:var(--bg2);color:var(--ink)}
 .empty-lib .btn{max-width:320px;margin:0 auto}
 .empty-lib .note{font-size:12px;color:var(--sub);margin-top:18px}
@@ -96,7 +96,7 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .player .wrap{padding-bottom:calc(8px + env(safe-area-inset-bottom));height:100%;min-height:540px;display:flex;flex-direction:column}
 .player .nav{border-bottom:none}
 .pc{flex:1 1 0;min-height:0;display:flex;justify-content:center;align-items:center;padding:6px 0 10px}
-.pc .cover{height:100%;max-height:260px;width:auto;max-width:56vw;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.pc .cover{height:100%;max-height:170px;width:auto;max-width:40vw;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 .pc .cover .ct{font-size:clamp(14px,4.2vw,18px);padding:14px 14px 0}
 .pc .cover .cb{font-size:12px;padding:0 14px}
 .ptitle{display:grid;grid-template-columns:1fr 44px;align-items:center;gap:8px}
@@ -118,21 +118,27 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .seek::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--ink);border:none}
 .times{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:-8px}
 .ctrls{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;margin:6px 0 2px}
-.cb2{width:56px;height:56px;display:grid;place-items:center;position:relative}
+.cb2{width:100%;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;padding:4px 0}
+.cb2 .cl{font-size:10.5px;color:var(--sub);white-space:nowrap}
+.cb2 .ring{width:50px;height:50px}
+.cb2.track{opacity:.75}
+.cb2.track svg.i{width:24px!important;height:24px!important;margin:13px 0}
 .cb2 svg.i{width:34px;height:34px}
-.cb2 .num{position:absolute;font-size:11px;font-weight:700;top:50%;left:50%;transform:translate(-50%,-38%)}
-.cb2.track svg.i{width:30px;height:30px}
 .cb2:disabled{opacity:.3}
-.playbtn{width:72px;height:72px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center}
+.playbtn{width:72px;height:72px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
 .playbtn svg.i{width:34px;height:34px}
 .status{min-height:20px;text-align:center;font-size:13px;color:var(--sub);margin:2px 0 2px}
-.status.rep{color:var(--rep);font-weight:700}
-.status.gap{color:var(--acc);font-weight:700}
+.status.rep{color:var(--ink);font-weight:700}
+.status.gap{color:var(--ink);font-weight:700}
 .tools{display:grid;grid-template-columns:repeat(5,1fr);flex:0 0 auto;padding-top:4px;border-top:1px solid var(--line)}
 .tool{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 4px;font-size:11px;color:var(--sub)}
-.tool b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;height:22px;display:flex;align-items:center}
+.tool{position:relative}
+.tool.on::after,.tool.rep::after{content:'';position:absolute;bottom:0;left:50%;width:5px;height:5px;border-radius:50%;background:var(--ink);transform:translateX(-50%)}
+.tool.off b{opacity:.35}
+.tool b{position:relative;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums;height:22px;display:flex;align-items:center}
+.rep1{position:absolute;right:-5px;top:-2px;font-size:9px;font-weight:800;background:var(--bg);border-radius:6px;padding:0 2px;line-height:1.2}
 .tool.on b{color:var(--acc)}
-.tool.rep b{color:var(--rep)}
+.tool.rep b{color:var(--ink)}
 
 /* バーは指でどこを触っても動かせる */
 .seekwrap .seek,.spwrap .seek{pointer-events:none;height:40px}
@@ -141,7 +147,7 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .seekwrap.drag .seek::-webkit-slider-thumb,.spwrap.drag .seek::-webkit-slider-thumb{transform:scale(1.35)}
 .seekwrap .seekbg{height:5px}
 /* 速さバー */
-.speedrow{display:grid;grid-template-columns:34px 1fr 34px 56px;gap:8px;align-items:center;margin:2px 0 4px}
+.speedrow{display:grid;grid-template-columns:34px 1fr 34px 46px 44px;gap:8px;align-items:center;margin:2px 0 4px}
 .speedrow .pm{height:34px;border-radius:8px;background:var(--bg2);font-size:18px}
 .spwrap{position:relative;height:40px;display:flex;align-items:center;touch-action:none;cursor:pointer}
 .spbg{position:absolute;left:0;right:0;height:4px;border-radius:2px;background:var(--line);overflow:hidden;pointer-events:none}
@@ -149,6 +155,8 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .spmark{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--sub);opacity:.5;pointer-events:none}
 .spwrap .seek::-webkit-slider-thumb{background:var(--acc)}
 .spwrap .seek::-moz-range-thumb{background:var(--acc)}
+.pm.one{font-size:12.5px;font-weight:700}
+.pm.one:disabled{opacity:.35}
 .spval{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--acc);text-align:right}
 /* 英文(文字起こし) */
 .scriptv{flex:1 1 0;min-height:0;display:flex;flex-direction:column;margin:2px 0 6px}
@@ -157,7 +165,7 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .shead2 button{color:var(--acc);font-size:13.5px}
 .shead2 button.on{font-weight:700}
 .script{flex:1 1 0;min-height:80px;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 0}
-.sl{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:10px;font-size:17px;line-height:1.6;color:var(--sub)}
+.sl{display:block;width:100%;text-align:left;padding:10px 12px;margin:2px 0;border-radius:10px;font-size:17px;line-height:1.65;color:var(--sub);letter-spacing:.005em}
 .sl.now{color:var(--ink);background:var(--acc-soft);font-weight:600}
 .sl .ts{display:block;font-size:11px;color:var(--sub);font-weight:400;font-variant-numeric:tabular-nums}
 .trbox{padding:22px 10px;text-align:center}
@@ -179,7 +187,7 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .speedbig small{font-size:14px;color:var(--sub);font-weight:400;margin-left:6px}
 .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .sgrid button{height:46px;border-radius:10px;background:var(--bg2);font-size:16px;font-variant-numeric:tabular-nums}
-.sgrid button.on{background:var(--acc);color:#fff;font-weight:700}
+.sgrid button.on{background:var(--ink);color:var(--bg);font-weight:700}
 .fine{display:grid;grid-template-columns:44px 1fr 44px;gap:12px;align-items:center;margin:16px 0 4px}
 .fine button{height:44px;border-radius:10px;background:var(--bg2);font-size:22px}
 .fine input{width:100%;accent-color:var(--acc)}
@@ -188,6 +196,7 @@ li.empty{display:block;text-align:center;color:var(--sub);font-size:14px;padding
 .setrow:last-child{border-bottom:none}
 .setrow .lab{font-size:15px;margin-bottom:10px}
 .setrow .lab small{display:block;font-size:12.5px;color:var(--sub)}
+.seg.many{grid-auto-flow:row;grid-template-columns:repeat(4,1fr);row-gap:2px}
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--bg2);border-radius:9px;padding:2px}
 .seg button{height:34px;border-radius:7px;font-size:13.5px}
 .seg button.on{background:var(--bg);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.15)}
@@ -205,7 +214,7 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
 .dlg input[type=text],.dlg select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);color:var(--ink);margin-bottom:10px}
 .dlg .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
 .dlg .btns button,.dlg .wide{padding:12px;border-radius:10px;background:var(--bg2);font-weight:700;font-size:15px}
-.dlg .btns .ok{background:var(--acc);color:#fff}
+.dlg .btns .ok{background:var(--ink);color:var(--bg)}
 .dlg .btns .danger{background:var(--fav);color:#fff}
 .dlg .wide{width:100%;margin-top:10px;font-weight:400}
 .dlg .prog{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin:12px 0 4px}
@@ -214,7 +223,7 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
 .toast{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top));transform:translateX(-50%) translateY(-10px);opacity:0;pointer-events:none;background:rgba(40,40,42,.94);color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;display:flex;gap:12px;align-items:center;transition:.2s;max-width:calc(100% - 32px);width:max-content;z-index:30}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .toast.show button{pointer-events:auto}
-.toast button{color:#7ee2b8;font-weight:700;font-size:14px}
+.toast button{color:#fff;text-decoration:underline;font-weight:700;font-size:14px}
 .drop-over::after{content:"ここにドロップ";position:fixed;inset:12px;border:2px dashed var(--acc);border-radius:16px;display:grid;place-items:center;color:var(--acc);font-weight:700;background:rgba(255,255,255,.6);z-index:40;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.player{transition:none}}
 </style>
@@ -272,7 +281,7 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
   </div>
   <div class="pc" id="sCover"></div>
   <div class="scriptv hide" id="scriptView">
-    <div class="shead2"><span id="scriptInfo">英文</span><span class="acts"><button id="segRepeat">今の文をくり返す</button><button id="scriptMenu">その他</button></span></div>
+    <div class="shead2"><span id="scriptInfo">英文</span><span class="acts"><button id="scriptMenu">その他</button></span></div>
     <div class="script" id="script"></div>
   </div>
   <div class="ptitle"><div style="min-width:0"><h2 id="sTitle"></h2><div class="no" id="sNo"></div></div><button class="ib" id="sFav" aria-label="お気に入り"></button></div>
@@ -282,26 +291,27 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
   </div>
   <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
   <div class="ctrls">
-    <button class="cb2 track" id="prevT" aria-label="前のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM19 6.2v11.6a1 1 0 0 1-1.5.86L9.6 13.9a1.1 1.1 0 0 1 0-1.8l7.9-4.76A1 1 0 0 1 19 6.2z"/></svg></button>
-    <button class="cb2" id="again" aria-label="もう一度"><svg class="i" viewBox="0 0 24 24"><path d="M12 4V1.5L7.5 5 12 8.5V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg><span class="num" id="againNum">3</span></button>
+    <button class="cb2 track" id="prevT" aria-label="前のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM19 6.2v11.6a1 1 0 0 1-1.5.86L9.6 13.9a1.1 1.1 0 0 1 0-1.8l7.9-4.76A1 1 0 0 1 19 6.2z"/></svg><span class="cl">前の音声</span></button>
+    <button class="cb2 big" id="again" aria-label="もう一度(数秒戻る)"><svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5A7.5 7.5 0 1 1 5.5 9.25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><polygon points="9.3,5.5 12.9,2.7 12.9,8.3" fill="currentColor"/><text x="12" y="13.2" text-anchor="middle" dominant-baseline="central" font-size="7" font-weight="700" fill="currentColor" id="againNum">3</text></svg><span class="cl" id="againLbl">3秒戻る</span></button>
     <button class="playbtn" id="play" aria-label="再生"></button>
-    <button class="cb2" data-skip="5" aria-label="5秒進む"><svg class="i" viewBox="0 0 24 24"><path d="M12 4V1.5L16.5 5 12 8.5V6a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/></svg><span class="num">5</span></button>
-    <button class="cb2 track" id="nextT" aria-label="次のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM5 6.2v11.6a1 1 0 0 0 1.5.86l7.9-4.76a1.1 1.1 0 0 0 0-1.8L6.5 5.34A1 1 0 0 0 5 6.2z"/></svg></button>
+    <button class="cb2 big" data-skip="5" aria-label="5秒進む"><svg class="ring" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5.5A7.5 7.5 0 1 0 18.5 9.25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><polygon points="14.7,5.5 11.1,2.7 11.1,8.3" fill="currentColor"/><text x="12" y="13.2" text-anchor="middle" dominant-baseline="central" font-size="7" font-weight="700" fill="currentColor">5</text></svg><span class="cl">5秒進む</span></button>
+    <button class="cb2 track" id="nextT" aria-label="次のトラック"><svg class="i" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM5 6.2v11.6a1 1 0 0 0 1.5.86l7.9-4.76a1.1 1.1 0 0 0 0-1.8L6.5 5.34A1 1 0 0 0 5 6.2z"/></svg><span class="cl">次の音声</span></button>
   </div>
   <div class="speedrow">
     <button class="pm" id="spMinus" aria-label="少し遅く">−</button>
     <div class="spwrap"><div class="spbg"><div class="spfill" id="spFill"></div></div><div class="spmark" id="spMark"></div><input type="range" class="seek" id="speed2" min="0.5" max="2" step="0.05" value="1" aria-label="再生の速さ"></div>
     <button class="pm" id="spPlus" aria-label="少し速く">+</button>
     <button class="spval" id="speedVal" aria-label="速さを一覧から選ぶ">1.0x</button>
+    <button class="pm one" id="spOne" aria-label="等倍に戻す">等倍</button>
   </div>
   <div class="status" id="gapnote"></div>
   <div class="skiplist" id="skipList"></div>
   <div class="tools">
     <button class="tool" id="tScript"><b><svg class="i" viewBox="0 0 24 24"><path d="M4 5h16a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2zm0 4h16a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2zm0 4h10a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2zm0 4h13a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2z"/></svg></b>英文</button>
-    <button class="tool" id="tMode"><b id="modeLbl">なし</b>リピート</button>
+    <button class="tool" id="tMode"><b><svg class="i" viewBox="0 0 24 24"><path d="M7 7h10V4.5L21 8l-4 3.5V9H7a2 2 0 0 0-2 2v1H3v-1a4 4 0 0 1 4-4zm10 10H7v2.5L3 16l4-3.5V15h10a2 2 0 0 0 2-2v-1h2v1a4 4 0 0 1-4 4z"/></svg><span class="rep1" id="rep1">1</span></b><span id="modeLbl">リピートなし</span></button>
     <button class="tool" id="tAB"><b id="abLbl">A-B</b>区間</button>
     <button class="tool" id="tSkip"><b><svg class="i" viewBox="0 0 24 24"><path d="M4 6.2v11.6a1 1 0 0 0 1.5.86L12 14.8v3a1 1 0 0 0 1.5.86l7-4.8a1.1 1.1 0 0 0 0-1.8l-7-4.8A1 1 0 0 0 12 7.2v3L5.5 5.34A1 1 0 0 0 4 6.2z"/></svg></b>飛ばす</button>
-    <button class="tool" id="tBack"><b>−10</b>10秒戻る</button>
+    <button class="tool" id="tSent"><b><svg class="i" viewBox="0 0 24 24"><path d="M4 7h11a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2zm0 4h8a1 1 0 1 1 0 2H4a1 1 0 0 1 0-2zm13.5-1V8l3.5 3-3.5 3v-2c-1.7 0-3 1.3-3 3s1.3 3 3 3h1v2h-1a5 5 0 0 1 0-10z"/></svg></b><span id="sentLbl">1文リピート</span></button>
   </div>
 </div></div>
 
@@ -311,7 +321,7 @@ kbd{font:12px inherit;border:1px solid var(--line);border-bottom-width:2px;borde
   <div class="speedbig" id="speedBig">1.0x</div>
   <div class="sgrid" id="presets"></div>
   <div class="fine"><button id="sdown" aria-label="少し遅く">−</button><input type="range" id="speed" min="0.3" max="3" step="0.05" value="1" aria-label="速さ"><button id="sup" aria-label="少し速く">+</button></div>
-  <p class="hint">速くしても遅くしても、声の高さは変わりません</p>
+  <p class="hint">速さを変えても、声が高く(アニメ声のように)なったり低くなったりはしません</p>
 </div></div>
 
 <!-- 設定シート -->
@@ -368,11 +378,12 @@ const DB={db:null,
           items.forEach((it,i)=>tx.objectStore('tracks').put({id:it.id,bookId:bid,name:it.name.replace(AUDIO_EXT,''),file:it.name,size:it.size,order:i,blob:it.blob,fav:false,played:false}))}
         db.deleteObjectStore('files')}}};
     r.onsuccess=()=>{DB.db=r.result;res(true)};r.onerror=r.onblocked=()=>res(false)}catch(e){res(false)}})},
+  get(name,id){return new Promise(res=>{if(!DB.db)return res(null);try{const r=DB.db.transaction(name,'readonly').objectStore(name).get(id);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null)}catch(e){res(null)}})},
   all(name){return new Promise(res=>{if(!DB.db)return res([]);try{const r=DB.db.transaction(name,'readonly').objectStore(name).getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([])}catch(e){res([])}})},
   run(names,fn){return new Promise(res=>{if(!DB.db)return res(false);try{const t=DB.db.transaction(names,'readwrite');fn(t);t.oncomplete=()=>res(true);t.onerror=t.onabort=e=>{e&&e.preventDefault&&e.preventDefault();res(false)}}catch(e){res(false)}})},
   putBook(b){return DB.run(['books'],t=>t.objectStore('books').put({id:b.id,name:b.name,added:b.added,color:b.color}))},
-  putTrack(x){return DB.run(['tracks'],t=>t.objectStore('tracks').put({id:x.id,bookId:x.bookId,name:x.name,file:x.file,size:x.size,order:x.order,blob:x.blob,fav:!!x.fav,played:!!x.played,skips:x.skips||[],tr:x.tr||null}))},
-  putTracks(arr){return DB.run(['tracks'],t=>{const s=t.objectStore('tracks');arr.forEach(x=>s.put({id:x.id,bookId:x.bookId,name:x.name,file:x.file,size:x.size,order:x.order,blob:x.blob,fav:!!x.fav,played:!!x.played,skips:x.skips||[],tr:x.tr||null}))})},
+  putTrack(x){return DB.run(['tracks'],t=>t.objectStore('tracks').put({id:x.id,bookId:x.bookId,name:x.name,file:x.file,size:x.size,order:x.order,blob:x.blob,fav:!!x.fav,played:!!x.played,skips:x.skips||[],tr:x.tr||null,trRaw:x.trRaw||null,trv:x.trv||0}))},
+  putTracks(arr){return DB.run(['tracks'],t=>{const s=t.objectStore('tracks');arr.forEach(x=>s.put({id:x.id,bookId:x.bookId,name:x.name,file:x.file,size:x.size,order:x.order,blob:x.blob,fav:!!x.fav,played:!!x.played,skips:x.skips||[],tr:x.tr||null,trRaw:x.trRaw||null,trv:x.trv||0}))})},
   delTrack(id){return DB.run(['tracks'],t=>t.objectStore('tracks').delete(id))},
   delBook(b){return DB.run(['books','tracks'],t=>{t.objectStore('books').delete(b.id);b.tracks.forEach(x=>t.objectStore('tracks').delete(x.id))})}};
 
@@ -529,7 +540,11 @@ function loadTrack(t,autoplay){if(!t)return;savePos();cancelTGap();clearRep();sk
   if(urlNow)URL.revokeObjectURL(urlNow);urlNow=URL.createObjectURL(t.blob);au.src=urlNow;
   store.set('lp_last',t.id);store.set('lp_lastIn_'+t.bookId,t.id);store.set('lp_queue',{book:t.bookId,ids:queue.map(x=>x.id)});
   au.onloadedmetadata=()=>{const p=store.get('lp_pos_'+t.id,0);if(p>3&&p<au.duration-3){au.currentTime=p;toast('前回の続き('+fmt(p)+')から再生します','最初から',()=>{au.currentTime=0;upd()},5000)}applySpeed();paintSkips();checkSkip();upd();renderScript();if(autoplay)tryPlay()};
-  au.onerror=()=>toast('このファイルは再生できません',null,null,4000);
+  let retried=false;au.onerror=async()=>{if(!au.getAttribute('src')||cur!==t)return;
+    if(!retried){retried=true;const pos=store.get('lp_pos_'+t.id,0);const rec=await DB.get('tracks',t.id);if(rec&&rec.blob)t.blob=rec.blob;
+      if(urlNow)URL.revokeObjectURL(urlNow);urlNow=URL.createObjectURL(t.blob);au.src=urlNow;au.load();
+      au.addEventListener('loadedmetadata',()=>{if(pos>0&&pos<au.duration)au.currentTime=pos;if(autoplay)tryPlay()},{once:true});return}
+    toast('この音声を読み込めませんでした。ページを開き直すか、音声を入れ直してください',null,null,5000)};
   $('mini').classList.remove('hide');const b=bookOf(t);if(b){putCover($('miniCover'),b);putCover($('sCover'),b)}
   updNow();upd();setMedia();if(openBook)renderBook()}
 function stopAll(){au.pause();au.removeAttribute('src');au.load();cur=null;queue=[];qi=-1;$('mini').classList.add('hide');closeSheet()}
@@ -547,10 +562,15 @@ function setPlayIcons(){const p=!au.paused;$('play').innerHTML=p?ICON_PAUSE:ICON
 au.onplay=au.onpause=setPlayIcons;setPlayIcons();
 $('play').onclick=toggle;$('miniPlay').onclick=e=>{e.stopPropagation();toggle()};
 $('miniBack').onclick=e=>{e.stopPropagation();again()};
-function skip(s){if(!cur||!isFinite(au.duration))return;au.currentTime=Math.min(Math.max(0,au.currentTime+s),au.duration);upd()}
+function skip(s){if(!cur||!isFinite(au.duration))return;cancelTGap();if(gapTimer){clearTimeout(gapTimer);gapTimer=null;setStatus()}if(typeof clearSent==='function'&&sentTimer)clearSent();
+  let t=au.currentTime,target=t+s;
+  if(s<0){/* 飛ばす部分は聞いていないので、戻る秒数に数えない */let r=-s;const zs=skips().filter(z=>z[0]<t).sort((x,y)=>y[0]-x[0]);let pos=t;
+    for(const[a,b]of zs){if(pos>b){const aud=pos-b;if(r<=aud){pos-=r;r=0;break}r-=aud;}pos=Math.min(pos,a)}
+    target=Math.max(0,pos-r)}
+  au.currentTime=Math.min(Math.max(0,target),au.duration-0.05);upd()}
 document.querySelectorAll('[data-skip]').forEach(b=>b.onclick=()=>skip(+b.dataset.skip));
-$('tBack').onclick=()=>skip(-10);
-function again(){if(!cur)return;clearSent();skip(-backSec());clearTimeout(gapTimer);tryPlay()}
+
+function again(){if(!cur)return;clearSent();skip(-backSec());tryPlay()}
 $('again').onclick=again;
 function nextTrack(auto){if(!queue.length)return;if(qi<queue.length-1){qi++;loadTrack(queue[qi],auto)}else if(mode()==='all'){qi=0;loadTrack(queue[0],auto)}}
 function prevTrack(){if(au.currentTime>3||qi<=0){au.currentTime=0;upd();return}qi--;loadTrack(queue[qi],!au.paused)}
@@ -561,8 +581,8 @@ async function markPlayed(t){if(t&&!t.played){t.played=true;await DB.putTrack(t)
 au.onended=()=>{if(!cur)return;store.set('lp_pos_'+cur.id,0);markPlayed(cur);
   const m=mode(),g=tGap();const go=()=>{cancelTGap();if(m==='one'){au.currentTime=0;tryPlay()}else nextTrack(true)};
   if(m==='next'&&qi>=queue.length-1){toast('最後のトラックまで再生しました');return}
-  if(g>0){let left=g;pendingGo=go;setStatus('次のトラックまで '+left+' 秒','gap');
-    tGapTimer=setInterval(()=>{left--;if(left<=0)go();else setStatus('次のトラックまで '+left+' 秒','gap')},1000)}
+  if(g>0){let left=g;pendingGo=go;const lab=m==='one'?'もう一度再生まで ':'次の音声まで ';setStatus(lab+left+' 秒(再生ボタンですぐ始まる)','gap');
+    tGapTimer=setInterval(()=>{left--;if(left<=0)go();else setStatus(lab+left+' 秒(再生ボタンですぐ始まる)','gap')},1000)}
   else go()};
 function setStatus(msg,kind){const s=$('gapnote');if(msg){s.textContent=msg;s.className='status '+(kind||'');return}
   if(skA!=null){s.textContent='飛ばしたい部分の終わりで、もう一度「飛ばす」を押してください';s.className='status rep';return}
@@ -580,7 +600,7 @@ function bindBar(wrap,onMove,onEnd){let drag=false;
   const end=e=>{if(!drag)return;drag=false;wrap.classList.remove('drag');onEnd(e.type==='pointercancel'?null:val(e))};
   wrap.addEventListener('pointerup',end);wrap.addEventListener('pointercancel',end)}
 bindBar($('seek').parentElement,r=>{seeking=true;$('seek').value=r*1000;$('fill').style.width=r*100+'%';if(au.duration)$('cur').textContent=fmt(r*au.duration)},
-  r=>{seeking=false;if(r!=null&&au.duration){au.currentTime=Math.min(r*au.duration,au.duration-0.05);clearSent()}upd()});
+  r=>{seeking=false;if(r!=null&&au.duration){cancelTGap();au.currentTime=Math.min(r*au.duration,au.duration-0.05);clearSent();allowIfInSkip()}upd()});
 function upd(){const d=au.duration||0,t=au.currentTime||0,r=d?t/d:0;if(!seeking){$('seek').value=r*1000;$('fill').style.width=r*100+'%';$('cur').textContent=fmt(t)}
   $('dur').textContent=fmt(d);$('miniProg').style.width=r*100+'%';paintRep()}
 au.ontimeupdate=()=>{checkSkip();upd();syncScript();if(cur&&au.duration&&au.currentTime/au.duration>0.9)markPlayed(cur);
@@ -605,19 +625,20 @@ let speed=1;
 const sp=v=>(Math.round(v*100)%10===0?v.toFixed(1):v.toFixed(2))+'x';
 function applySpeed(){au.preservesPitch=true;au.webkitPreservesPitch=true;au.mozPreservesPitch=true;au.playbackRate=speed;au.defaultPlaybackRate=speed}
 function setSpeed(v){speed=Math.round(Math.min(3,Math.max(0.3,v))*100)/100;applySpeed();$('speed').value=speed;
-  $('speedVal').textContent=sp(speed);$('speedBig').textContent=sp(speed);const r=(Math.min(2,Math.max(.5,speed))-.5)/1.5;$('speed2').value=Math.min(2,Math.max(.5,speed));$('spFill').style.width=r*100+'%';
+  $('speedVal').textContent=sp(speed);$('spOne').disabled=speed===1;$('speedBig').textContent=sp(speed);const r=(Math.min(2,Math.max(.5,speed))-.5)/1.5;$('speed2').value=Math.min(2,Math.max(.5,speed));$('spFill').style.width=r*100+'%';
   document.querySelectorAll('#presets button').forEach(b=>b.classList.toggle('on',+b.dataset.p===speed));store.set('lp_speed',speed)}
 $('speed').oninput=e=>setSpeed(+e.target.value);
 $('sdown').onclick=()=>setSpeed(speed-0.05);$('sup').onclick=()=>setSpeed(speed+0.05);
 $('speed2').oninput=e=>setSpeed(+e.target.value);
+$('spOne').onclick=()=>{setSpeed(1);toast('等倍(1.0x)に戻しました',null,null,1200)};
 bindBar($('speed2').parentElement,r=>setSpeed(Math.round((0.5+r*1.5)*20)/20),r=>{});$('spMinus').onclick=()=>setSpeed(speed-0.05);$('spPlus').onclick=()=>setSpeed(speed+0.05);
 $('spMark').style.left='calc('+((1-.5)/1.5*100)+'% - 1px)';
 
 /* リピート(ツールバーで切り替え) */
-const MODES=[['next','なし','次のトラックへ進みます'],['one','1曲','同じトラックをくり返します'],['all','全体','最後まで行ったら最初に戻ります']];
+const MODES=[['next','リピートなし','終わったら次の音声へ進みます'],['one','1曲リピート','今の音声をくり返します'],['all','全曲リピート','最後の音声まで行ったら最初に戻ります']];
 let modeV=store.get('lp_mode','next');if(!MODES.some(m=>m[0]===modeV))modeV='next';
 const mode=()=>modeV;
-function paintMode(){const m=MODES.find(x=>x[0]===modeV);$('modeLbl').textContent=m[1];$('tMode').classList.toggle('on',modeV!=='next')}
+function paintMode(){const m=MODES.find(x=>x[0]===modeV);$('modeLbl').textContent=m[1];$('tMode').classList.toggle('on',modeV!=='next');$('tMode').classList.toggle('off',modeV==='next');$('rep1').classList.toggle('hide',modeV!=='one')}
 $('tMode').onclick=()=>{const i=MODES.findIndex(x=>x[0]===modeV);modeV=MODES[(i+1)%MODES.length][0];store.set('lp_mode',modeV);paintMode();updNow();toast(MODES.find(x=>x[0]===modeV)[2],null,null,1800)};
 paintMode();
 
@@ -625,17 +646,19 @@ paintMode();
 function seg(id,opts,key,def,onset){const el=$(id);let v=store.get(key,def);
   opts.forEach(([val,l])=>{const b=document.createElement('button');b.textContent=l;b.dataset.v=val;b.onclick=()=>{v=val;store.set(key,v);paint();onset&&onset(v)};el.appendChild(b)});
   function paint(){el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',String(b.dataset.v)===String(v)))}paint();onset&&onset(v);return()=>v}
-const backSec=seg('segBack',[[2,'2秒'],[3,'3秒'],[5,'5秒'],[8,'8秒']],'lp_back',3,v=>$('againNum').textContent=v);
-const tGap=seg('segTGap',[[0,'なし'],[2,'2秒'],[3,'3秒'],[5,'5秒'],[10,'10秒']],'lp_tgap',0);
-const gapSec=seg('segGap',[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],[5,'5秒']],'lp_gap',0);
-const sentGap=seg('segSGap',[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],['x','長さに合わせる']],'lp_sgap',0);
+const backSec=seg('segBack',[[2,'2秒'],[3,'3秒'],[5,'5秒'],[8,'8秒'],[10,'10秒']],'lp_back',3,v=>{$('againNum').textContent=v;$('againLbl').textContent=v+'秒戻る'});
+const GAPS=[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],[5,'5秒'],[10,'10秒'],[15,'15秒'],[20,'20秒']];
+const tGap=seg('segTGap',GAPS,'lp_tgap',0);
+const gapSec=seg('segGap',GAPS,'lp_gap',0);
+const sentGap=seg('segSGap',[[0,'なし'],[1,'1秒'],[2,'2秒'],[3,'3秒'],[5,'5秒'],[10,'10秒'],[20,'20秒'],['x','文の長さ']],'lp_sgap',0);
+['segTGap','segGap','segSGap'].forEach(id=>$(id).classList.add('many'));
 au.volume=1;
 
 /* 区間リピート:1回目で開始、2回目で終わり、3回目で解除 */
-function abStep(){if(!cur)return;if(A==null){A=au.currentTime;B=null}else if(B==null){const t=au.currentTime;if(t<=A+0.3)A=Math.max(0,t-5);B=t;au.currentTime=A;tryPlay()}else{clearRep();return}showRep()}
-function clearRep(){A=B=null;clearTimeout(gapTimer);showRep()}
+function abStep(){if(!cur)return;if(sentRep){clearRep();return}if(A==null){A=au.currentTime;B=null}else if(B==null){const t=au.currentTime;if(t<=A+0.3)A=Math.max(0,t-5);B=t;au.currentTime=A;tryPlay()}else{clearRep();return}showRep()}
+function clearRep(){A=B=null;sentRep=false;clearTimeout(gapTimer);gapTimer=null;showRep()}
 function paintRep(){const z=$('repzone'),d=au.duration;if(A!=null&&d){z.style.display='block';z.style.left=A/d*100+'%';z.style.width=B!=null?(B-A)/d*100+'%':'2px'}else z.style.display='none'}
-function showRep(){paintRep();$('abLbl').textContent=A==null?'A-B':B==null?'A-':'A-B';$('tAB').classList.toggle('rep',A!=null);if(!tGapTimer)setStatus()}
+function showRep(){paintRep();$('abLbl').textContent=A==null?'A-B':B==null?'A-':'A-B';$('tAB').classList.toggle('rep',A!=null&&!sentRep);$('tSent').classList.toggle('rep',sentRep&&A!=null);if(!tGapTimer)setStatus()}
 $('tAB').onclick=abStep;
 
 /* 飛ばす部分:1回目で開始、2回目で終わりを登録。次からは自動で飛ばす */
@@ -654,8 +677,11 @@ function skipStep(){if(!cur)return;const t=au.currentTime;
   cur.skips=skips().concat([[a,b]]).sort((x,y)=>x[0]-y[0]);DB.putTrack(cur);paintSkips();setStatus();
   toast(fmt1(a)+'〜'+fmt1(b)+' を、次から飛ばします')}
 function removeSkip(i){if(!cur||!cur.skips)return;cur.skips.splice(i,1);DB.putTrack(cur);paintSkips();toast('飛ばす設定を解除しました')}
+let skipAllow=null;/* バーや英文で自分から飛ばす部分に入ったときは、そこを聞けるようにする */
+function allowIfInSkip(){const t=au.currentTime;skipAllow=skips().find(([a,b])=>t>=a-0.05&&t<b)||null}
 function checkSkip(){if(!cur||skA!=null||!au.duration)return;const t=au.currentTime;
-  for(const[a,b]of skips()){if(t>=a&&t<b-0.05){au.currentTime=Math.min(b,au.duration);return}}}
+  if(skipAllow&&(t<skipAllow[0]-0.3||t>=skipAllow[1]))skipAllow=null;
+  for(const z of skips()){const[a,b]=z;if(skipAllow&&skipAllow[0]===a&&skipAllow[1]===b)continue;if(t>=a&&t<b-0.05){au.currentTime=Math.min(b,au.duration);return}}}
 setInterval(()=>{if(!au.paused){checkSkip();checkSentence()}},80);
 /* 英文の文の終わりで止める */
 let sentK=-1,sentTimer=null;
@@ -665,7 +691,7 @@ function checkSentence(){const g=sentGap();const tr=cur&&cur.tr;if(!g||!tr||!tr.
   if(sentK<0||sentK>=tr.length||t<tr[sentK].s-0.5||t>tr[sentK].e+1.5){sentK=segAt(t);return}
   const sg=tr[sentK];if(t<sg.e-0.05)return;
   if(sentK>=tr.length-1){sentK=-1;return}
-  const wait=g==='x'?Math.min(8,Math.max(1,(sg.e-sg.s)/speed)):+g;
+  const wait=g==='x'?Math.min(20,Math.max(1,(sg.e-sg.s)/speed)):+g;
   au.pause();sentK++;au.currentTime=tr[sentK].s;
   let left=Math.ceil(wait);setStatus('次の文まで '+left+' 秒(再生ボタンですぐ再開)','gap');
   const tick=()=>{left--;if(left<=0){sentTimer=null;setStatus();tryPlay()}else{setStatus('次の文まで '+left+' 秒(再生ボタンですぐ再開)','gap');sentTimer=setTimeout(tick,1000)}};
@@ -674,15 +700,15 @@ $('tSkip').onclick=skipStep;
 
 /* ---------- 英文(端末内の文字起こし) ---------- */
 const TF_URL='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1';
-const MODELS=[['Xenova/whisper-tiny.en','ふつう','約40MB・速い'],['Xenova/whisper-base.en','高精度','約80MB・パソコン向け']];
+const MODELS=[['onnx-community/whisper-tiny.en_timestamped','ふつう','約40MB・速い'],['onnx-community/whisper-base.en_timestamped','高精度','約80MB・パソコン向け']];
 let segNow=-1,showScript=store.get('lp_script',false),trJob=null,userScrollAt=0;
 const trModel=()=>{const m=store.get('lp_trmodel',MODELS[0][0]);return MODELS.some(x=>x[0]===m)?m:MODELS[0][0]};
 function paintScriptMode(){$('scriptView').classList.toggle('hide',!showScript);$('sCover').classList.toggle('hide',showScript);$('tScript').classList.toggle('on',showScript)}
 $('tScript').onclick=()=>{showScript=!showScript;store.set('lp_script',showScript);paintScriptMode();renderScript()};
 $('script').addEventListener('touchmove',()=>userScrollAt=Date.now(),{passive:true});
 $('script').addEventListener('wheel',()=>userScrollAt=Date.now(),{passive:true});
-function renderScript(){paintScriptMode();if(!cur)return;const box=$('script');segNow=-1;
-  const tr=cur.tr;$('segRepeat').classList.toggle('hide',!tr||!tr.length);$('scriptMenu').classList.toggle('hide',!tr||!tr.length);
+function renderScript(){paintScriptMode();if(!cur)return;ensureSentences(cur);const box=$('script');segNow=-1;
+  const tr=cur.tr;$('scriptMenu').classList.toggle('hide',!tr||!tr.length);
   if(trJob&&trJob.id===cur.id){box.innerHTML=trJob.html();$('scriptInfo').textContent='文字起こし中';return}
   if(!tr||!tr.length){$('scriptInfo').textContent='英文';
     box.innerHTML='<div class="trbox"><h3>このトラックの英文を作る</h3><p>音声から英文を自動で書き起こします。再生に合わせて、今話している文に色が付きます。音声はこの端末の中だけで処理されます。</p><div class="seg trmodel" id="trModelSeg"></div><button class="btn" id="trStart">文字起こしを始める</button><p style="font-size:12px;margin:0">初回だけAIのダウンロードが必要です。画面を開いたままお待ちください。</p></div>';
@@ -691,16 +717,38 @@ function renderScript(){paintScriptMode();if(!cur)return;const box=$('script');s
     $('trStart').onclick=()=>startTranscribe(cur);return}
   $('scriptInfo').textContent='英文 '+tr.length+'文';
   box.innerHTML='';tr.forEach((g,i)=>{const b=document.createElement('button');b.className='sl';b.dataset.i=i;
-    b.innerHTML='<span class="ts">'+fmt(g.s)+'</span>';b.appendChild(document.createTextNode(g.t));
-    b.onclick=()=>{clearSent();if(A!=null&&B!=null){A=g.s;B=g.e;showRep()}au.currentTime=g.s;upd();tryPlay();syncScript(true)};box.appendChild(b)});
+    b.textContent=g.t;b.title=fmt(g.s);
+    b.onclick=()=>{clearSent();cancelTGap();if(A!=null&&B!=null){A=g.s;B=g.e;showRep()}au.currentTime=g.s;allowIfInSkip();upd();tryPlay();syncScript(true)};box.appendChild(b)});
   syncScript(true)}
+/* AIの細切れの結果を、ピリオド・?・! で終わる1文ごとに組み直す */
+const ABBR=/^(mr|mrs|ms|dr|prof|st|jr|sr|vs|etc|e\.g|i\.e|u\.s|u\.k|a\.m|p\.m|no|vol|fig|approx)\.$/i;
+function toSentences(raw){const words=[];
+  (raw||[]).forEach(g=>{const ws=String(g.t||'').trim().split(/\s+/).filter(Boolean);if(!ws.length)return;
+    if(ws.length===1){words.push({w:ws[0],s:g.s,e:g.e});return}
+    const total=ws.reduce((a,w)=>a+w.length+1,0);let acc=0;const span=Math.max(0.05,g.e-g.s);
+    ws.forEach(w=>{const st=g.s+span*acc/total;acc+=w.length+1;words.push({w,s:st,e:g.s+span*acc/total})})});
+  const out=[];let cw=[];
+  const flush=()=>{if(!cw.length)return;out.push({s:cw[0].s,e:cw[cw.length-1].e,t:cw.map(x=>x.w).join(' ').replace(/\s+([,.!?;:])/g,'$1')});cw=[]};
+  for(let i=0;i<words.length;i++){const x=words[i],nx=words[i+1];cw.push(x);
+    const bare=x.w.replace(/["'”’)\]]+$/,'');
+    const end=/[.!?]$/.test(bare)&&!ABBR.test(bare)&&!/^[A-Z]\.$/.test(bare)&&!(nx&&/^[a-z]/.test(nx.w));
+    const pause=nx&&nx.s-x.e>1.5;
+    const long=(cw.length>=30&&/[,;:]$/.test(bare))||cw.length>=45;
+    if(end||pause||long)flush()}
+  flush();
+  for(let i=0;i<out.length-1;i++)out[i].e=Math.max(out[i].e,Math.min(out[i+1].s,out[i].e+0.6));
+  return out}
+function ensureSentences(t){if(!t||!t.tr||!t.tr.length||t.trv===2)return;t.trRaw=t.tr;t.tr=toSentences(t.tr);t.trv=2;DB.putTrack(t)}
 function segAt(t){const tr=cur&&cur.tr;if(!tr)return-1;let k=-1;for(let i=0;i<tr.length;i++){if(tr[i].s<=t+0.05)k=i;else break}return k}
 function syncScript(force){if(!showScript||!cur||!cur.tr||!cur.tr.length)return;const k=segAt(au.currentTime||0);if(k===segNow&&!force)return;
   const box=$('script');const old=box.querySelector('.sl.now');if(old)old.classList.remove('now');segNow=k;if(k<0)return;
   const el=box.querySelector('.sl[data-i="'+k+'"]');if(!el)return;el.classList.add('now');
   if(force||Date.now()-userScrollAt>4000){const top=el.offsetTop-box.offsetTop-box.clientHeight/3;box.scrollTo({top:Math.max(0,top),behavior:force?'auto':'smooth'})}}
 setInterval(()=>{if(!au.paused)syncScript()},150);
-$('segRepeat').onclick=()=>{if(!cur||!cur.tr)return;const k=Math.max(0,segAt(au.currentTime||0));const g=cur.tr[k];A=g.s;B=g.e;au.currentTime=A;showRep();tryPlay();toast('この文をくり返します。解除は「区間」をもう一度',null,null,2500)};
+let sentRep=false;
+$('tSent').onclick=()=>{if(!cur)return;if(!cur.tr||!cur.tr.length){toast('「英文」で文字起こしすると使えます',null,null,2200);return}
+  if(sentRep&&A!=null){clearRep();toast('1文リピートを止めました',null,null,1500);return}
+  const k=Math.max(0,segAt(au.currentTime||0));const g=cur.tr[k];clearSent();cancelTGap();A=g.s;B=g.e;sentRep=true;au.currentTime=A;showRep();tryPlay();toast('この文をくり返します。もう一度押すと止まります',null,null,2200)};
 $('scriptMenu').onclick=()=>{const t=cur;dialog('<h3>英文の設定</h3><p>うまく書き起こせていないときは、やり直すと改善することがあります。</p><button class="wide" id="trRedo">高精度でやり直す</button><button class="wide" id="trDel" style="color:var(--fav)">このトラックの英文を削除</button><button class="wide" id="trClose">閉じる</button>',
   box=>{box.querySelector('#trClose').onclick=closeDialog;
     box.querySelector('#trRedo').onclick=()=>{closeDialog();store.set('lp_trmodel',MODELS[1][0]);startTranscribe(t)};
@@ -727,8 +775,8 @@ function cutPoints(a){const SR=16000,W=28*SR,MIN=18*SR,step=SR/10;const cuts=[0]
 let trWorker=null;
 function getWorker(){if(trWorker)return trWorker;
   const code="let p=null,m=null,tf=null;self.onmessage=async e=>{const d=e.data;try{if(!tf){tf=await import('"+TF_URL+"');tf.env.allowLocalModels=false;try{tf.env.backends.onnx.wasm.numThreads=1}catch(x){}}"+
-    "if(!p||m!==d.model){p=await tf.pipeline('automatic-speech-recognition',d.model,{dtype:'q8',device:'wasm',progress_callback:x=>self.postMessage({type:'load',x})});m=d.model}"+
-    "self.postMessage({type:'start'});const out=await p(d.audio,{return_timestamps:true});self.postMessage({type:'done',out})}"+
+    "if(!p||m!==d.model){self.noWord=0;p=await tf.pipeline('automatic-speech-recognition',d.model,{dtype:'q8',device:'wasm',progress_callback:x=>self.postMessage({type:'load',x})});m=d.model}"+
+    "self.postMessage({type:'start'});let out;if(self.noWord){out=await p(d.audio,{return_timestamps:true})}else{try{out=await p(d.audio,{return_timestamps:'word'})}catch(x){self.noWord=1;out=await p(d.audio,{return_timestamps:true})}}self.postMessage({type:'done',out})}"+
     "catch(err){self.postMessage({type:'error',message:String((err&&err.message)||err)})}};";
   trWorker=new Worker(URL.createObjectURL(new Blob([code],{type:'text/javascript'})),{type:'module'});return trWorker}
 function pieceSegs(out,offset,dur){const ch=(out&&out.chunks&&out.chunks.length)?out.chunks:[{timestamp:[0,dur],text:(out&&out.text)||''}];const segs=[];
@@ -768,7 +816,7 @@ async function startTranscribe(t){if(!t||trJob)return;
   catch(e){clearTimeout(guard);fail(e.message);return}
   if(cancelled)return;clearInterval(timer);audio=null;trJob=null;
   if(!segs.length){fail('音声から英語を聞き取れませんでした');return}
-  t.tr=segs;await DB.putTrack(t);if(cur&&cur.id===t.id)renderScript();toast('「'+t.name+'」の英文ができました')}
+  t.trRaw=segs;t.tr=toSentences(segs);t.trv=2;await DB.putTrack(t);if(cur&&cur.id===t.id)renderScript();toast('「'+t.name+'」の英文ができました')}
 
 /* ロック画面・イヤホン */
 function setMedia(){if(!('mediaSession' in navigator)||!cur)return;const b=bookOf(cur);
